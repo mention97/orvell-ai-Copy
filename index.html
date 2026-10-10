@@ -520,33 +520,61 @@
       messages.scrollTop = messages.scrollHeight;
     }
 
-    function demoReply(text) {
-      const q = text.toLowerCase();
-      if (/hello|hi\b|hey|good morning/.test(q)) {
-        return "Hello. ORVELL's interface is online. My AI brain isn't connected yet, but we're building toward that.";
+    
+const conversationHistory = [];
+
+$("composer").addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const text = promptInput.value.trim();
+  if (!text) return;
+
+  addMessage(text, "user");
+  promptInput.value = "";
+
+  const sendButton = document.querySelector(".send");
+  if (sendButton) sendButton.disabled = true;
+
+  try {
+    const response = await fetch(
+      "https://orvell-ai.mentionkuci01.workers.dev/chat",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            ...conversationHistory,
+            { role: "user", content: text }
+          ]
+        })
       }
-      if (/what can you do|capabilit/.test(q)) {
-        return "Right now, I can demonstrate this interface. Next we'll connect a real AI model, then add voice and secure memory.";
-      }
-      if (/plan my day|organize my day/.test(q)) {
-        return "Let's plan it. List your three most important tasks, any appointments, and when you want to finish. This is a demo response for now.";
-      }
-      if (/idea/.test(q)) {
-        return "A useful next step: let's build one reliable feature at a time, starting with real AI chat before adding more complex automation.";
-      }
-      return "I received your message. This is currently a frontend demo, not a real AI response. Our next step is to connect an AI model securely.";
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "AI request failed");
     }
 
-    $("composer").addEventListener("submit", event => {
-      event.preventDefault();
-      const text = promptInput.value.trim();
-      if (!text) return;
-      addMessage(text, "user");
-      promptInput.value = "";
-      addMessage(demoReply(text), "assistant");
-    });
+    conversationHistory.push(
+      { role: "user", content: text },
+      { role: "assistant", content: data.reply }
+    );
 
-    document.querySelectorAll("[data-prompt]").forEach(button => {
+    addMessage(data.reply, "assistant");
+  } catch (error) {
+    console.error("ORVELL connection error:", error);
+    addMessage(
+      "I'm having trouble connecting right now. Please try again.",
+      "assistant"
+    );
+  } finally {
+    if (sendButton) sendButton.disabled = false;
+    promptInput.focus();
+  }
+});
+
+
       button.addEventListener("click", () => {
         promptInput.value = button.dataset.prompt;
         promptInput.focus();
