@@ -1,1 +1,605 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080b12">
+  <title>ORVELL — Personal Intelligence</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080b12;
+      --panel: rgba(17, 23, 36, .86);
+      --line: rgba(145, 177, 224, .15);
+      --blue: #76baff;
+      --cyan: #65f1ee;
+      --text: #edf4ff;
+      --muted: #8290a8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(ellipse at 50% 38%, #142540 0%, transparent 42%),
+        var(--bg);
+      color: var(--text);
+      font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 225px minmax(0, 1fr);
+    }
+
+    aside {
+      padding: 27px 17px;
+      border-right: 1px solid var(--line);
+      background: rgba(7, 10, 17, .72);
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 0 7px;
+    }
+
+    .brand-mark {
+      width: 35px;
+      height: 35px;
+      display: grid;
+      place-items: center;
+      border: 1px solid #5baeff;
+      border-radius: 11px;
+      color: var(--cyan);
+      box-shadow: 0 0 20px #419fff30;
+      font-size: 20px;
+    }
+
+    .brand-name { font-size: 17px; letter-spacing: 4px; }
+    .brand-sub { color: var(--muted); font-size: 9px; letter-spacing: 2px; }
+
+    .section-label {
+      color: #65738a;
+      font-size: 10px;
+      letter-spacing: 2px;
+      margin: 0 9px 9px;
+    }
+
+    .nav {
+      width: 100%;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      color: #a3b0c7;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      background: transparent;
+      text-align: left;
+      margin-bottom: 5px;
+    }
+
+    .nav.active, .nav:hover {
+      color: white;
+      background: #78baff12;
+      border-color: #78baff27;
+    }
+
+    .nav span { width: 18px; text-align: center; }
+
+    .side-bottom { margin-top: auto; }
+
+    .status-card {
+      border: 1px solid var(--line);
+      background: #101724;
+      padding: 13px;
+      border-radius: 12px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #65f1b0;
+      box-shadow: 0 0 10px #65f1b077;
+    }
+
+    .muted { color: var(--muted); font-size: 11px; }
+    .small { font-size: 11px; }
+
+    main {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 25px clamp(17px, 4vw, 58px) 24px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .eyebrow {
+      color: var(--cyan);
+      font-size: 10px;
+      letter-spacing: 2.5px;
+    }
+
+    h1 { font-size: 17px; font-weight: 500; margin: 5px 0 0; }
+
+    .clock {
+      color: #b6c8e3;
+      font-variant-numeric: tabular-nums;
+      font-size: 12px;
+    }
+
+    .center {
+      flex: 1;
+      min-height: 410px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 0;
+      text-align: center;
+    }
+
+    .core-wrap {
+      width: min(255px, 65vw);
+      aspect-ratio: 1;
+      position: relative;
+      display: grid;
+      place-items: center;
+      margin-bottom: 22px;
+      isolation: isolate;
+    }
+
+    .core-wrap::before {
+      content: "";
+      position: absolute;
+      inset: 20%;
+      border-radius: 50%;
+      background: #398fff;
+      filter: blur(53px);
+      opacity: .19;
+      animation: glow 4s ease-in-out infinite alternate;
+      z-index: -1;
+    }
+
+    .ring {
+      position: absolute;
+      inset: 5%;
+      border: 1px solid #78baff40;
+      border-radius: 50%;
+      animation: spin 24s linear infinite;
+    }
+
+    .ring::before, .ring::after {
+      content: "";
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 15px var(--cyan);
+    }
+
+    .ring::before { top: 13%; left: 17%; }
+    .ring::after { bottom: 14%; right: 14%; background: var(--blue); }
+
+    .ring.two {
+      inset: 15%;
+      border-style: dashed;
+      border-color: #78baff35;
+      animation: spin 34s linear infinite reverse;
+    }
+
+    .ring.three {
+      inset: 26%;
+      border-color: #65f1ee55;
+      animation-duration: 15s;
+    }
+
+    .core {
+      width: 35%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #edffff, #70d8ff 18%, #357cf3 47%, #14244b 75%);
+      box-shadow: 0 0 24px #4ba9ff90, 0 0 65px #287cff45, inset 0 0 20px #fff8;
+      animation: breathe 3s ease-in-out infinite;
+    }
+
+    .core.listening {
+      background: radial-gradient(circle, white, #7bfff3 28%, #2698ff 65%, #14244b);
+      box-shadow: 0 0 45px #65f1ee, 0 0 100px #2698ff88;
+    }
+
+    .core-label {
+      color: #91a9ca;
+      font-size: 10px;
+      letter-spacing: 4px;
+    }
+
+    .greeting {
+      font-size: clamp(27px, 4vw, 40px);
+      font-weight: 400;
+      letter-spacing: -1.5px;
+      margin: 9px 0;
+    }
+
+    .greeting em { color: var(--blue); font-style: normal; }
+    .subtitle { color: #8c9bb2; max-width: 390px; margin: 0; }
+
+    .quick-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 23px;
+    }
+
+    .chip {
+      padding: 10px 13px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #101725b8;
+      color: #b7c6dc;
+      font-size: 12px;
+    }
+
+    .chip:hover { border-color: #76baff77; color: white; }
+
+    .chat {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .messages {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 190px;
+      overflow: auto;
+      padding: 0 2px;
+    }
+
+    .message {
+      width: fit-content;
+      max-width: 85%;
+      border: 1px solid var(--line);
+      background: #121a29;
+      border-radius: 12px 12px 12px 3px;
+      padding: 10px 13px;
+      color: #dce8f8;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: #183052;
+      border-radius: 12px 12px 3px 12px;
+    }
+
+    .composer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #637fa43a;
+      background: #111826;
+      padding: 8px;
+      border-radius: 15px;
+      margin-top: 13px;
+      box-shadow: 0 10px 45px #0002;
+    }
+
+    .composer:focus-within { border-color: #76baff80; }
+
+    .composer input {
+      flex: 1;
+      min-width: 0;
+      padding: 9px 6px;
+      background: transparent;
+      border: 0;
+      outline: none;
+      color: white;
+    }
+
+    .composer input::placeholder { color: #66768e; }
+
+    .icon-btn, .send {
+      border: 1px solid var(--line);
+      background: #182336;
+      color: #b8d6f7;
+      border-radius: 10px;
+      min-width: 39px;
+      height: 39px;
+    }
+
+    .send {
+      background: #5ca8ff;
+      color: #06101d;
+      border-color: transparent;
+      font-weight: 700;
+    }
+
+    .icon-btn:hover, .send:hover { filter: brightness(1.2); }
+
+    .footnote {
+      color: #53627a;
+      text-align: center;
+      font-size: 10px;
+      margin-top: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #172337;
+      border: 1px solid var(--line);
+      padding: 10px 16px;
+      border-radius: 10px;
+      color: #dceaff;
+      display: none;
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes breathe {
+      0%, 100% { transform: scale(.94); }
+      50% { transform: scale(1.07); }
+    }
+    @keyframes glow {
+      from { opacity: .12; transform: scale(.85); }
+      to { opacity: .3; transform: scale(1.15); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    @media (max-width: 650px) {
+      .app { grid-template-columns: 1fr; }
+      aside {
+        padding: 13px 15px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .brand { padding: 0; }
+      .brand-mark { width: 31px; height: 31px; }
+      .brand-name { font-size: 14px; }
+      .brand-sub, .side-bottom, .section-label { display: none; }
+      .nav-list { display: flex; gap: 3px; }
+      .nav { width: auto; padding: 9px; margin: 0; }
+      .nav span { width: auto; }
+      .nav .nav-text { display: none; }
+      main { padding: 20px 16px; }
+      .center { min-height: 430px; }
+      .core-wrap { width: 205px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand">
+        <div class="brand-mark">◈</div>
+        <div>
+          <div class="brand-name">ORVELL</div>
+          <div class="brand-sub">PERSONAL INTELLIGENCE</div>
+        </div>
+      </div>
+
+      <div class="nav-list">
+        <p class="section-label">WORKSPACE</p>
+        <button class="nav active" data-page="home"><span>⌂</span><span class="nav-text">Overview</span></button>
+        <button class="nav" data-page="chat"><span>◌</span><span class="nav-text">Conversation</span></button>
+        <button class="nav" data-page="memory"><span>▤</span><span class="nav-text">Memory</span></button>
+        <button class="nav" data-page="settings"><span>⚙</span><span class="nav-text">Settings</span></button>
+      </div>
+
+      <div class="side-bottom">
+        <div class="status-card">
+          <div class="status-row"><span class="dot"></span><strong class="small">Interface online</strong></div>
+          <p class="muted">Local prototype · AI not connected</p>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <header>
+        <div>
+          <div class="eyebrow" id="page-label">PERSONAL SYSTEM</div>
+          <h1 id="page-title">Your workspace</h1>
+        </div>
+        <div class="clock" id="clock">--:--:--</div>
+      </header>
+
+      <section class="center" id="home-view">
+        <div class="core-wrap" aria-label="Animated ORVELL core">
+          <div class="ring"></div>
+          <div class="ring two"></div>
+          <div class="ring three"></div>
+          <div class="core" id="core"></div>
+        </div>
+        <div class="core-label" id="core-label">SYSTEM STANDBY</div>
+        <h2 class="greeting">At your command<span>,</span> <em>always.</em></h2>
+        <p class="subtitle" id="subtitle">Your personal intelligence, ready when you are.</p>
+        <div class="quick-actions">
+          <button class="chip" data-prompt="Help me plan my day">◷ Plan my day</button>
+          <button class="chip" data-prompt="Give me a useful idea">✳ Find an idea</button>
+          <button class="chip" data-prompt="What can you do right now?">⌘ Explore capabilities</button>
+        </div>
+      </section>
+
+      <section class="center" id="memory-view" hidden>
+        <div class="core-label">PERSONAL MEMORY</div>
+        <h2 class="greeting">A mind that <em>remembers.</em></h2>
+        <p class="subtitle">Memory storage is not connected yet. We'll add private, controllable memory in a later phase.</p>
+      </section>
+
+      <section class="center" id="settings-view" hidden>
+        <div class="core-label">SYSTEM CONFIGURATION</div>
+        <h2 class="greeting">Your system. <em>Your rules.</em></h2>
+        <p class="subtitle">This prototype stores no personal data and has no connected AI service yet.</p>
+      </section>
+
+      <section class="chat" id="chat-view">
+        <div class="messages" id="messages" aria-live="polite"></div>
+        <form class="composer" id="composer">
+          <button class="icon-btn" type="button" id="mic" aria-label="Voice input" title="Voice input">⌁</button>
+          <input id="prompt" autocomplete="off" placeholder="Message ORVELL..." aria-label="Message ORVELL">
+          <button class="send" type="submit" aria-label="Send message">↑</button>
+        </form>
+        <div class="footnote">ORVELL UI PROTOTYPE · NO AI CONNECTION YET</div>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const messages = $("messages");
+    const promptInput = $("prompt");
+    const core = $("core");
+    let toastTimer;
+
+    function toast(message) {
+      const el = $("toast");
+      el.textContent = message;
+      el.style.display = "block";
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.style.display = "none", 2600);
+    }
+
+    function updateClock() {
+      $("clock").textContent = new Intl.DateTimeFormat(undefined, {
+        hour: "2-digit", minute: "2-digit", second: "2-digit"
+      }).format(new Date());
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    function addMessage(text, who) {
+      const bubble = document.createElement("div");
+      bubble.className = "message" + (who === "user" ? " user" : "");
+      bubble.textContent = text;
+      messages.appendChild(bubble);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function demoReply(text) {
+      const q = text.toLowerCase();
+      if (/hello|hi\b|hey|good morning/.test(q)) {
+        return "Hello. ORVELL's interface is online. My AI brain isn't connected yet, but we're building toward that.";
+      }
+      if (/what can you do|capabilit/.test(q)) {
+        return "Right now, I can demonstrate this interface. Next we'll connect a real AI model, then add voice and secure memory.";
+      }
+      if (/plan my day|organize my day/.test(q)) {
+        return "Let's plan it. List your three most important tasks, any appointments, and when you want to finish. This is a demo response for now.";
+      }
+      if (/idea/.test(q)) {
+        return "A useful next step: let's build one reliable feature at a time, starting with real AI chat before adding more complex automation.";
+      }
+      return "I received your message. This is currently a frontend demo, not a real AI response. Our next step is to connect an AI model securely.";
+    }
+
+    $("composer").addEventListener("submit", event => {
+      event.preventDefault();
+      const text = promptInput.value.trim();
+      if (!text) return;
+      addMessage(text, "user");
+      promptInput.value = "";
+      addMessage(demoReply(text), "assistant");
+    });
+
+    document.querySelectorAll("[data-prompt]").forEach(button => {
+      button.addEventListener("click", () => {
+        promptInput.value = button.dataset.prompt;
+        promptInput.focus();
+        $("composer").requestSubmit();
+      });
+    });
+
+    const views = {
+      home: ["PERSONAL SYSTEM", "Your workspace"],
+      chat: ["LIVE CONVERSATION", "Talk to ORVELL"],
+      memory: ["PERSONAL MEMORY", "Your memory"],
+      settings: ["SYSTEM CONFIGURATION", "Settings"]
+    };
+
+    document.querySelectorAll("[data-page]").forEach(button => {
+      button.addEventListener("click", () => {
+        const page = button.dataset.page;
+        document.querySelectorAll("[data-page]").forEach(b => b.classList.toggle("active", b === button));
+        $("page-label").textContent = views[page][0];
+        $("page-title").textContent = views[page][1];
+        $("home-view").hidden = page !== "home";
+        $("chat-view").hidden = page !== "chat";
+        $("memory-view").hidden = page !== "memory";
+        $("settings-view").hidden = page !== "settings";
+        if (page === "chat") promptInput.focus();
+      });
+    });
+
+    $("mic").addEventListener("click", () => {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        toast("Voice recognition isn't supported in this browser. Try a recent version of Chrome.");
+        return;
+      }
+      const recognition = new SpeechRecognition();
+      recognition.lang = "en-US";
+      recognition.interimResults = false;
+      recognition.onstart = () => {
+        core.classList.add("listening");
+        $("core-label").textContent = "LISTENING...";
+      };
+      recognition.onresult = event => {
+        promptInput.value = event.results[0][0].transcript;
+        promptInput.focus();
+      };
+      recognition.onerror = () => toast("Microphone unavailable. Check browser permissions.");
+      recognition.onend = () => {
+        core.classList.remove("listening");
+        $("core-label").textContent = "SYSTEM STANDBY";
+      };
+      recognition.start();
+    });
+  </script>
+</body>
+</html>
+
